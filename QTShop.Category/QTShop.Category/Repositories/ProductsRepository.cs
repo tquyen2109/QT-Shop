@@ -1,0 +1,84 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Confluent.Kafka;
+using MongoDB.Driver;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using QTShop.Category.Model;
+
+namespace QTShop.Category.Repositories
+{
+    public class ProductsRepository : IProductsRepository
+    {
+        private readonly IMongoCollection<Product> _productCollection;
+        private readonly IProducer<Null, string> _producer;
+
+        public ProductsRepository(IProductCollectionDatabaseSettings settings)
+        {
+            var client = new MongoClient(settings.ConnectionString);
+            var database = client.GetDatabase(settings.DatabaseName);
+            _productCollection = database.GetCollection<Product>(settings.ProductCollectionName);
+            var config = new ProducerConfig()
+            {
+                BootstrapServers = "localhost:9092"
+            };
+            _producer = new ProducerBuilder<Null, string>(config).Build();
+        }
+        public async Task<Product> GetProductById(string id)
+        {
+            return await _productCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<Product>> GetProducts()
+        {
+            return await _productCollection.Find(_ => true).ToListAsync();
+        }
+
+        public async Task CreateProduct(Product product)
+        {
+            await _productCollection.InsertOneAsync(product);
+            var message = new KafkaMessage()
+            {
+                EventType = EventType.ProductCreated.ToString(),
+                Body = new KafkaBody()
+                {
+                    ProductId = product.Id,
+                    Quantity = "0",
+                    Price = product.Price,
+                    Name = product.Name
+                }
+            };
+            await _producer.ProduceAsync("QTShop", new Message<Null, string>()
+            {
+                Value = JObject.FromObject(message).ToString(Formatting.None)
+            });
+        }
+
+        public async Task UpdateProduct(Product product)
+        {
+            var currentProduct = await _productCollection.Find(x => x.Id == product.Id).FirstOrDefaultAsync();
+            currentProduct.Brand = product.Brand;
+            currentProduct.Name = product.Name;
+            currentProduct.Description = product.Description;
+            currentProduct.Type = product.Type;
+            currentProduct.PictureUrl = product.PictureUrl;
+            currentProduct.Name = product.Name;
+            await _productCollection.ReplaceOneAsync(p=> p.Id == product.Id,currentProduct);
+            var message = new KafkaMessage()
+            {
+                EventType = EventType.ProductUpdated.ToString(),
+                Body = new KafkaBody()
+                {
+                    ProductId = product.Id,
+                    Price = product.Price,
+                    Name = product.Name
+                }
+            };
+            await _producer.ProduceAsync("QTShop", new Message<Null, string>()
+            {
+                Value = JObject.FromObject(message).ToString(Formatting.None)
+            });
+        }
+    }
+}
