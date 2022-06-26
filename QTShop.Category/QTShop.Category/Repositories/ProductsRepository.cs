@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Confluent.Kafka;
 using MongoDB.Driver;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using QTShop.Category.Helper;
 using QTShop.Category.Model;
 
 namespace QTShop.Category.Repositories
@@ -12,7 +10,7 @@ namespace QTShop.Category.Repositories
     public class ProductsRepository : IProductsRepository
     {
         private readonly IMongoCollection<Product> _productCollection;
-        private readonly IProducer<Null, string> _producer;
+        private readonly IProducer<Null, ProductKafkaMessage> _producer;
 
         public ProductsRepository(IProductCollectionDatabaseSettings settings)
         {
@@ -23,7 +21,7 @@ namespace QTShop.Category.Repositories
             {
                 BootstrapServers = "localhost:9092"
             };
-            _producer = new ProducerBuilder<Null, string>(config).Build();
+            _producer = new ProducerBuilder<Null, ProductKafkaMessage>(config).SetValueSerializer(new CustomerSerializer.CustomValueSerializer<ProductKafkaMessage>()).Build();
         }
         public async Task<Product> GetProductById(string id)
         {
@@ -38,7 +36,7 @@ namespace QTShop.Category.Repositories
         public async Task CreateProduct(Product product)
         {
             await _productCollection.InsertOneAsync(product);
-            var message = new KafkaMessage()
+            var message = new ProductKafkaMessage()
             {
                 EventType = EventType.ProductCreated.ToString(),
                 Body = new KafkaBody()
@@ -49,9 +47,9 @@ namespace QTShop.Category.Repositories
                     Name = product.Name
                 }
             };
-            await _producer.ProduceAsync("QTShop", new Message<Null, string>()
+            await _producer.ProduceAsync("QTShop", new Message<Null, ProductKafkaMessage>()
             {
-                Value = JObject.FromObject(message).ToString(Formatting.None)
+                Value = message
             });
         }
 
@@ -65,7 +63,7 @@ namespace QTShop.Category.Repositories
             currentProduct.PictureUrl = product.PictureUrl;
             currentProduct.Name = product.Name;
             await _productCollection.ReplaceOneAsync(p=> p.Id == product.Id,currentProduct);
-            var message = new KafkaMessage()
+            var message = new ProductKafkaMessage()
             {
                 EventType = EventType.ProductUpdated.ToString(),
                 Body = new KafkaBody()
@@ -75,9 +73,9 @@ namespace QTShop.Category.Repositories
                     Name = product.Name
                 }
             };
-            await _producer.ProduceAsync("QTShop", new Message<Null, string>()
+            await _producer.ProduceAsync("QTShop", new Message<Null, ProductKafkaMessage>()
             {
-                Value = JObject.FromObject(message).ToString(Formatting.None)
+                Value =  message
             });
         }
     }

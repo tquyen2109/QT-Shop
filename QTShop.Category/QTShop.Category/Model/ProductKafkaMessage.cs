@@ -1,6 +1,6 @@
 ﻿namespace QTShop.Category.Model
 {
-    public class KafkaMessage
+    public class ProductKafkaMessage
     {
         public string EventType { get; set; }
         public KafkaBody Body { get; set; }

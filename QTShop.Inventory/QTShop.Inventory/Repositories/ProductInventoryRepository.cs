@@ -23,7 +23,7 @@ namespace QTShop.Inventory.Repositories
                 await using var db = new SqlConnection(connectionString);
                 await db.OpenAsync();
                 var sql =
-                    $"INSERT INTO dbo.ProductInventory (ProductId, ProductName, Quantity) VALUE ({productId}, {productName}, 0)";
+                    $"INSERT INTO dbo.ProductInventory (ProductId, ProductName, Quantity) VALUES ('{productId}', '{productName}', 0)";
                 await db.ExecuteAsync(sql);
             }
             catch (Exception e)
