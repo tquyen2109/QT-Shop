@@ -27,7 +27,7 @@ namespace QTShop.Category
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddScoped<IProductsRepository, ProductsRepository>();
+            services.AddSingleton<IProductsRepository, ProductsRepository>();
             services.Configure<ProductCollectionDatabaseSettings>(
                 Configuration.GetSection(nameof(ProductCollectionDatabaseSettings)));
 

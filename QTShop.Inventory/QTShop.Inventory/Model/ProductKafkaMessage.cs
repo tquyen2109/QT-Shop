@@ -1,8 +1,8 @@
 ﻿namespace QTShop.Inventory.Model
 {
-    public class Message
+    public class ProductKafkaMessage
     {
         public string EventType { get; set; }
-        public ProductInventory Body { get; set; }
+        public KafkaBody Body { get; set; }
     }
 }

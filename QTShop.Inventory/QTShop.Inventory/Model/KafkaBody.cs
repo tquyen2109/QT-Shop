@@ -1,6 +1,6 @@
 ﻿namespace QTShop.Inventory.Model
 {
-    public class ProductInventory
+    public class KafkaBody
     {
         public string ProductId { get; set; }
         public string Quantity { get; set; }

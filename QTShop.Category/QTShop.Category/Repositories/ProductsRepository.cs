@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Confluent.Kafka;
 using MongoDB.Driver;
@@ -10,7 +11,7 @@ namespace QTShop.Category.Repositories
     public class ProductsRepository : IProductsRepository
     {
         private readonly IMongoCollection<Product> _productCollection;
-        private readonly IProducer<Null, ProductKafkaMessage> _producer;
+        private readonly IProducer<string, ProductKafkaMessage> _producer;
 
         public ProductsRepository(IProductCollectionDatabaseSettings settings)
         {
@@ -21,7 +22,7 @@ namespace QTShop.Category.Repositories
             {
                 BootstrapServers = "localhost:9092"
             };
-            _producer = new ProducerBuilder<Null, ProductKafkaMessage>(config).SetValueSerializer(new CustomerSerializer.CustomValueSerializer<ProductKafkaMessage>()).Build();
+            _producer = new ProducerBuilder<string, ProductKafkaMessage>(config).SetValueSerializer(new CustomerSerializer.CustomValueSerializer<ProductKafkaMessage>()).Build();
         }
         public async Task<Product> GetProductById(string id)
         {
@@ -47,8 +48,9 @@ namespace QTShop.Category.Repositories
                     Name = product.Name
                 }
             };
-            await _producer.ProduceAsync("QTShop", new Message<Null, ProductKafkaMessage>()
+            await _producer.ProduceAsync("QTShop",new Message<string, ProductKafkaMessage>()
             {
+                Key = product.Id,
                 Value = message
             });
         }
@@ -69,14 +71,30 @@ namespace QTShop.Category.Repositories
                 Body = new KafkaBody()
                 {
                     ProductId = product.Id,
-                    Price = product.Price,
                     Name = product.Name
                 }
             };
-            await _producer.ProduceAsync("QTShop", new Message<Null, ProductKafkaMessage>()
+            await _producer.ProduceAsync("QTShop", new Message<string, ProductKafkaMessage>()
             {
+                Key = product.Id,
                 Value =  message
             });
+        }
+
+        public async Task UpdateProductQuantity(string id, string quantity)
+        {
+            try
+            {
+                var currentProduct = await _productCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+                currentProduct.Quantity = quantity;
+                await _productCollection.ReplaceOneAsync(p=> p.Id == id, currentProduct);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+           
         }
     }
 }

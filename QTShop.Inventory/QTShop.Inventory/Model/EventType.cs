@@ -3,6 +3,7 @@
     public enum EventType
     {
         ProductCreated,
-        ProductUpdated
+        ProductUpdated,
+        ProductQuantityUpdated,
     }
 }

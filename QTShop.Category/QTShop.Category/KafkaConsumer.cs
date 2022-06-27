@@ -1,28 +1,28 @@
 ﻿using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Hosting;
-using QTShop.Inventory.Model;
-using QTShop.Inventory.Repositories;
+using QTShop.Category.Model;
+using QTShop.Category.Repositories;
 
-namespace QTShop.Inventory
+namespace QTShop.Category
 {
-    public class KafkaConsumer : IHostedService
+    public class KafkaConsumer  : IHostedService
     {
-        private readonly IProductInventoryRepository _productInventoryRepository;
+        private readonly IProductsRepository _productRepository;
 
-        public KafkaConsumer(IProductInventoryRepository productInventoryRepository)
+        public KafkaConsumer(IProductsRepository productRepository)
         {
-            _productInventoryRepository = productInventoryRepository;
+            _productRepository = productRepository;
         }
         private readonly string topic = "QTShop";
         public Task StartAsync(CancellationToken cancellationToken)
         {
             var conf = new ConsumerConfig
             {
-                GroupId = "Inventory",
+                GroupId = "Product",
                 BootstrapServers = "localhost:9092",
                 AutoOffsetReset = AutoOffsetReset.Earliest
             };
@@ -39,13 +39,9 @@ namespace QTShop.Inventory
                         var message = JsonSerializer.Deserialize<ProductKafkaMessage>(consumer.Message.Value);
                         switch (message.EventType.ToString())
                         {
-                            case nameof(EventType.ProductCreated):
-                                _productInventoryRepository.CreateProductInInventory(message.Body.ProductId,
-                                    message.Body.Name);
-                                break;
-                            case nameof(EventType.ProductUpdated):
-                                _productInventoryRepository.UpdateProductInInventory(message.Body.ProductId,
-                                    message.Body.Name);
+                            case nameof(EventType.ProductQuantityUpdated):
+                                _productRepository.UpdateProductQuantity(message.Body.ProductId,
+                                    message.Body.Quantity);
                                 break;
                             default:
                                 Console.WriteLine($"No event type match");
