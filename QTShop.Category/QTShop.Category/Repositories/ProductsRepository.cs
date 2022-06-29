@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Confluent.Kafka;
+using Dapper;
+using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 using QTShop.Category.Helper;
 using QTShop.Category.Model;
@@ -10,19 +13,15 @@ namespace QTShop.Category.Repositories
 {
     public class ProductsRepository : IProductsRepository
     {
+        private readonly IOutboxRepository _outboxRepository;
         private readonly IMongoCollection<Product> _productCollection;
-        private readonly IProducer<string, ProductKafkaMessage> _producer;
 
-        public ProductsRepository(IProductCollectionDatabaseSettings settings)
+        public ProductsRepository(IProductCollectionDatabaseSettings settings, IOutboxRepository outboxRepository)
         {
+            _outboxRepository = outboxRepository;
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
             _productCollection = database.GetCollection<Product>(settings.ProductCollectionName);
-            var config = new ProducerConfig()
-            {
-                BootstrapServers = "localhost:9092"
-            };
-            _producer = new ProducerBuilder<string, ProductKafkaMessage>(config).SetValueSerializer(new CustomerSerializer.CustomValueSerializer<ProductKafkaMessage>()).Build();
         }
         public async Task<Product> GetProductById(string id)
         {
@@ -48,11 +47,12 @@ namespace QTShop.Category.Repositories
                     Name = product.Name
                 }
             };
-            await _producer.ProduceAsync("QTShop",new Message<string, ProductKafkaMessage>()
-            {
-                Key = product.Id,
-                Value = message
-            });
+            await _outboxRepository.CreateOutboxMessage(new OutboxMessage
+            (
+                message,
+               Guid.NewGuid().ToString(),
+                DateTime.Now
+            ));
         }
 
         public async Task UpdateProduct(Product product)
@@ -74,11 +74,12 @@ namespace QTShop.Category.Repositories
                     Name = product.Name
                 }
             };
-            await _producer.ProduceAsync("QTShop", new Message<string, ProductKafkaMessage>()
-            {
-                Key = product.Id,
-                Value =  message
-            });
+            await _outboxRepository.CreateOutboxMessage(new OutboxMessage
+            (
+                message,
+                Guid.NewGuid().ToString(),
+                DateTime.Now
+            ));
         }
 
         public async Task UpdateProductQuantity(string id, string quantity)

@@ -12,6 +12,10 @@ using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using QTShop.Category.Model;
 using QTShop.Category.Repositories;
+using QTShop.Category.ServiceWorker;
+using Quartz;
+using Quartz.Impl;
+using Quartz.Spi;
 
 namespace QTShop.Category
 {
@@ -28,6 +32,16 @@ namespace QTShop.Category
         {
             services.AddControllers();
             services.AddSingleton<IProductsRepository, ProductsRepository>();
+            services.AddSingleton<IOutboxRepository, OutboxRepository>();
+            services.AddSingleton<IJobFactory, SingletonJobFactory>();
+            services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+
+            // Add our job
+            services.AddSingleton<OutboxJob>();
+            services.AddSingleton(new JobSchedule(
+                jobType: typeof(OutboxJob),
+                cronExpression: "0/5 * * * * ?"));
+            services.AddHostedService<QuartzHostedService>();
             services.Configure<ProductCollectionDatabaseSettings>(
                 Configuration.GetSection(nameof(ProductCollectionDatabaseSettings)));
 
