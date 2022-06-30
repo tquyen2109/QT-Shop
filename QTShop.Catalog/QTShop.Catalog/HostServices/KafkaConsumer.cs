@@ -6,6 +6,7 @@ using Confluent.Kafka;
 using Microsoft.Extensions.Hosting;
 using QTShop.Catalog.Model;
 using QTShop.Catalog.Repositories;
+using QTShop.Common.Models;
 
 namespace QTShop.Catalog
 {

@@ -1,4 +1,4 @@
-﻿namespace QTShop.Catalog.Model
+﻿namespace QTShop.Common.Models
 {
     public enum EventType
     {

@@ -17,4 +17,8 @@
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\QTShop.Common\QTShop.Common\QTShop.Common.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 using QTShop.Catalog.Helper;
 using QTShop.Catalog.Model;
+using QTShop.Common.Models;
 
 namespace QTShop.Catalog.Repositories
 {
@@ -39,7 +40,7 @@ namespace QTShop.Catalog.Repositories
             var message = new ProductKafkaMessage()
             {
                 EventType = EventType.ProductCreated.ToString(),
-                Body = new KafkaBody()
+                Body = new ProductKafkaBody()
                 {
                     ProductId = product.Id,
                     Quantity = "0",
@@ -68,7 +69,7 @@ namespace QTShop.Catalog.Repositories
             var message = new ProductKafkaMessage()
             {
                 EventType = EventType.ProductUpdated.ToString(),
-                Body = new KafkaBody()
+                Body = new ProductKafkaBody()
                 {
                     ProductId = product.Id,
                     Name = product.Name

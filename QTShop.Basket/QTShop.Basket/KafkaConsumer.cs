@@ -1,23 +1,15 @@
 ﻿using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Hosting;
 using QTShop.Common.Models;
-using QTShop.Inventory.Model;
-using QTShop.Inventory.Repositories;
 
-namespace QTShop.Inventory
+namespace QTShop.Basket
 {
-    public class KafkaConsumer : IHostedService
+    public class KafkaConsumer :IHostedService
     {
-        private readonly IProductInventoryRepository _productInventoryRepository;
-
-        public KafkaConsumer(IProductInventoryRepository productInventoryRepository)
-        {
-            _productInventoryRepository = productInventoryRepository;
-        }
         private readonly string topic = "QTShop";
         public Task StartAsync(CancellationToken cancellationToken)
         {
@@ -40,13 +32,7 @@ namespace QTShop.Inventory
                         var message = JsonSerializer.Deserialize<ProductKafkaMessage>(consumer.Message.Value);
                         switch (message.EventType)
                         {
-                            case nameof(EventType.ProductCreated):
-                                _productInventoryRepository.CreateProductInInventory(message.Body.ProductId,
-                                    message.Body.Name);
-                                break;
                             case nameof(EventType.ProductUpdated):
-                                _productInventoryRepository.UpdateProductInInventory(message.Body.ProductId,
-                                    message.Body.Name);
                                 break;
                             default:
                                 Console.WriteLine($"No event type match");

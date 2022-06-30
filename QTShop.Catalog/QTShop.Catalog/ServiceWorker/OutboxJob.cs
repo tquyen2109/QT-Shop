@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using QTShop.Catalog.Helper;
 using QTShop.Catalog.Model;
 using QTShop.Catalog.Repositories;
+using QTShop.Common.Models;
 using Quartz;
 
 namespace QTShop.Catalog.ServiceWorker
@@ -36,6 +37,7 @@ namespace QTShop.Catalog.ServiceWorker
             foreach (var item in readyToSendItems)
             {
                 var eventMessage = JsonSerializer.Deserialize<ProductKafkaMessage>(item.Data);
+                eventMessage.EventId = item.EventId;
                 await _producer.ProduceAsync("QTShop",new Message<string, ProductKafkaMessage>()
                 {
                     Key = eventMessage.Body.ProductId,

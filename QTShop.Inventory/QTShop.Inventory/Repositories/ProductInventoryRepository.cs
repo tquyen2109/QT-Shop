@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using Confluent.Kafka;
 using Dapper;
 using Microsoft.Extensions.Configuration;
+using QTShop.Common.Models;
 using QTShop.Inventory.Helper;
-using QTShop.Inventory.Model;
 
 
 namespace QTShop.Inventory.Repositories
@@ -71,7 +71,7 @@ namespace QTShop.Inventory.Repositories
                 var message = new ProductKafkaMessage()
                 {
                     EventType = EventType.ProductQuantityUpdated.ToString(),
-                    Body = new KafkaBody()
+                    Body = new ProductKafkaBody()
                     {
                         ProductId = productId,
                         Quantity = quantity.ToString()
