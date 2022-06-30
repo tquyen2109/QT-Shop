@@ -10,7 +10,7 @@ To ensure that we process all event, the Catalog Service (Producer) implement ou
 ![Outbox pattern (1)](https://user-images.githubusercontent.com/23560729/176568906-6e0c8a8c-846d-47c3-9fbd-da622f4d7058.png)
 * **(1)** The Catalog service save event details in Outbox Message table in SQL database with ***ReadyToSent*** state.
 * **(2)** Outbox service worker run every 3 second (Configurable in app setting) and look for events that are in ***ReadyToSent*** state
-* **(3)** Publish ReadyToSent events to Kafka
+* **(3)** Publish ***ReadyToSent*** events to Kafka
 * **(4)** Update the events that have been published to ***Sent*** state
 # II. Quantity updated
 ![Kafka Communication - Page 1 (1)](https://user-images.githubusercontent.com/23560729/176569577-5f35182d-38ee-432f-80d8-10cdcf82289c.png)
