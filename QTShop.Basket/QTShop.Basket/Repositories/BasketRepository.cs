@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using MongoDB.Driver;
 using QTShop.Basket.Models;
 
@@ -32,6 +34,31 @@ namespace QTShop.Basket.Repositories
                 await _basketCollection.ReplaceOneAsync(p=> p.Id == basket.Id, basket);
             }
         }
-        
+
+        public async Task UpdatePrice(string productId, int price, string name)
+        {
+            try
+            {
+                var basketsWithProduct = await _basketCollection.Find(x => x.Items.Any(i => i.ProductId == productId)).ToListAsync();
+                foreach (var basket in basketsWithProduct)
+                {
+                    var newItem = new BasketItem()
+                    {
+                        ProductId = productId,
+                        Name = name,
+                        Price = price,
+                        Quantity = basket.Items.FirstOrDefault(i => i.ProductId == productId).Quantity
+                    };
+                    basket.Items.Remove(basket.Items.FirstOrDefault(i => i.ProductId == productId));
+                    basket.Items.Add(newItem);
+                    await _basketCollection.ReplaceOneAsync(p=> p.Id == basket.Id, basket);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
     }
 }

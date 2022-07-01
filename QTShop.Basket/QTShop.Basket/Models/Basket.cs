@@ -9,6 +9,6 @@ namespace QTShop.Basket.Models
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
-        public IEnumerable<BasketItem> Items { get; set; }
+        public List<BasketItem> Items { get; set; }
     }
 }

@@ -4,18 +4,25 @@ using System.Threading;
 using System.Threading.Tasks;
 using Confluent.Kafka;
 using Microsoft.Extensions.Hosting;
+using QTShop.Basket.Repositories;
 using QTShop.Common.Models;
 
 namespace QTShop.Basket
 {
     public class KafkaConsumer :IHostedService
     {
+        private readonly IBasketRepository _basketRepository;
         private readonly string topic = "QTShop";
+
+        public KafkaConsumer(IBasketRepository basketRepository)
+        {
+            _basketRepository = basketRepository;
+        }
         public Task StartAsync(CancellationToken cancellationToken)
         {
             var conf = new ConsumerConfig
             {
-                GroupId = "Inventory",
+                GroupId = "Basket",
                 BootstrapServers = "localhost:9092",
                 AutoOffsetReset = AutoOffsetReset.Earliest
             };
@@ -33,6 +40,7 @@ namespace QTShop.Basket
                         switch (message.EventType)
                         {
                             case nameof(EventType.ProductUpdated):
+                                _basketRepository.UpdatePrice(message.Body.ProductId, Int32.Parse(message.Body.Price), message.Body.Name);
                                 break;
                             default:
                                 Console.WriteLine($"No event type match");

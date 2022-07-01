@@ -7,5 +7,6 @@ namespace QTShop.Basket.Repositories
     {
         Task<Models.Basket> GetBasketById(string id);
         Task UpsertBasket(Models.Basket basket);
+        Task UpdatePrice(string productId, int price, string name);
     }
 }

@@ -28,12 +28,7 @@ namespace QTShop.Basket.Controllers
            await _basketRepository.UpsertBasket(new Models.Basket
            {
                Id = basketDto.Id,
-               Items = basketDto.Items.Select(i => new BasketItem
-               {
-                   ProductId = i.ProductId,
-                   Name = i.Name,
-                   Price = i.Price
-               })
+               Items = basketDto.Items
            });
         }
     }

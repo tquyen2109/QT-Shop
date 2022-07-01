@@ -72,7 +72,8 @@ namespace QTShop.Catalog.Repositories
                 Body = new ProductKafkaBody()
                 {
                     ProductId = product.Id,
-                    Name = product.Name
+                    Name = product.Name,
+                    Price = product.Price
                 }
             };
             await _outboxRepository.CreateOutboxMessage(new OutboxMessage
