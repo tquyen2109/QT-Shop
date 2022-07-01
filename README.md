@@ -1,5 +1,5 @@
 # QT-Shop
-Ecommerce application with Event Driven Archiecture, Microservices with Kafka and .Net Core.
+Highly scalable ecommerce application with Event Driven Archiecture, Microservices with Kafka and .Net Core.
 The communications between service to service are asynchronous with the help of Kafka as a event broker. 
 The project is demonstrating a few scenrios that can occur in a ecommerce application
 # I. Product upsert
