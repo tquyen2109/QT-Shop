@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -10,7 +11,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using QTShop.Order.Command.Models;
+using QTShop.Order.Command.Repositories;
 
 namespace QTShop.Order.Command
 {
@@ -27,6 +31,12 @@ namespace QTShop.Order.Command
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddSingleton<IOrdersRepository, OrdersRepository>();
+            services.Configure<OrderEventCollectionDatabaseSettings>(
+                Configuration.GetSection(nameof(OrderEventCollectionDatabaseSettings)));
+            services.AddSingleton<IOrderEventCollectionDatabaseSettings>(sp =>
+                sp.GetRequiredService<IOptions<OrderEventCollectionDatabaseSettings>>().Value);
+            services.AddMediatR(typeof(Startup));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "QTShop.Order.Command", Version = "v1"});
