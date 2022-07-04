@@ -16,6 +16,9 @@ To ensure that we process all event, the Catalog Service (Producer) implement ou
 ![Kafka Communication - Page 1 (1)](https://user-images.githubusercontent.com/23560729/176569577-5f35182d-38ee-432f-80d8-10cdcf82289c.png)
  Inventory service owns the inventory system of QTShop, whenever the user or admin update inventory. Beside update it owns SQL database, it also produce 
  a ***"ProductQuantityUpdated"*** event for a particular product Id and Category service this time will act as a consumer to consumer and handle ***"ProductQuantityUpdated"*** event.
+ # Product/Basket update
+ Catalog service sometimes update a particular product, it might be pricing or product name. After successfully update the product within the service. Catalog service will publish a ***"ProductUpdated"*** event for Basket service to consumer. Basket service will look for all baskets that currently have the product and update the product accordingly.
+ ![Blank diagram (1)](https://user-images.githubusercontent.com/23560729/177225458-936dc052-7c09-4845-bbc5-f5d1e1bc3f1e.png)
 # Placing order
 For order service, we break down the service into two separate projects as Order Command and Order Query for CQSR pattern. We also utilize Event Sourcing pattern for Order Command to record all of the events for order process. The records are being stored in Mongo DB under OrderEventCollection database. After creating order with *Pending* status. Order Command service publish an ***OrderPlaced*** events to all of the consumers that have interests in this event (Basket, Order Query, Invetory)
 * Basket service will delete the basket after the order is placed.
