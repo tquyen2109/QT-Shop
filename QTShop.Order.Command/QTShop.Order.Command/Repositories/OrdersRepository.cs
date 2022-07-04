@@ -41,6 +41,7 @@ namespace QTShop.Order.Command.Repositories
             var order = new Models.Order
             {
                 Total = total,
+                OrderId = Guid.NewGuid().ToString(),
                 OrderStatus = OrderStatus.Pending.ToString()
             };
             await _orderEventCollection.InsertOneAsync(order);
@@ -50,7 +51,7 @@ namespace QTShop.Order.Command.Repositories
                 EventId = Guid.NewGuid().ToString(),
                 Body = new OrderKafkaBody
                 {
-                    OrderId = order.Id,
+                    OrderId = order.OrderId,
                     Total = order.Total.ToString(),
                     BasketId = request.BasketId,
                     OrderStatus = order.OrderStatus
