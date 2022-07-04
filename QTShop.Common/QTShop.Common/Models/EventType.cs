@@ -5,5 +5,6 @@
         ProductCreated,
         ProductUpdated,
         ProductQuantityUpdated,
+        OrderPlaced
     }
 }

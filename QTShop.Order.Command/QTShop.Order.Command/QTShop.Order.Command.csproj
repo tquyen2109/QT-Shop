@@ -13,4 +13,8 @@
         <PackageReference Include="Confluent.Kafka" Version="1.9.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\QTShop.Common\QTShop.Common\QTShop.Common.csproj" />
+    </ItemGroup>
+
 </Project>

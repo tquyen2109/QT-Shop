@@ -2,9 +2,9 @@
 using System.Text.Json;
 using Confluent.Kafka;
 
-namespace QTShop.Catalog.Helper
+namespace QTShop.Common.Helper
 {
-    public class CustomerSerializer
+    public class CustomSerializer
     {
         public class CustomValueSerializer<T> : ISerializer<T>
         {

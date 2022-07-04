@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
-using Confluent.Kafka;
-using Dapper;
-using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
-using QTShop.Catalog.Helper;
 using QTShop.Catalog.Model;
 using QTShop.Common.Models;
 
@@ -37,7 +32,7 @@ namespace QTShop.Catalog.Repositories
         public async Task CreateProduct(Product product)
         {
             await _productCollection.InsertOneAsync(product);
-            var message = new ProductKafkaMessage()
+            var message = new KafkaMessage<ProductKafkaBody>()
             {
                 EventType = EventType.ProductCreated.ToString(),
                 Body = new ProductKafkaBody()
@@ -66,7 +61,7 @@ namespace QTShop.Catalog.Repositories
             currentProduct.PictureUrl = product.PictureUrl;
             currentProduct.Name = product.Name;
             await _productCollection.ReplaceOneAsync(p=> p.Id == product.Id,currentProduct);
-            var message = new ProductKafkaMessage()
+            var message = new KafkaMessage<ProductKafkaBody>()
             {
                 EventType = EventType.ProductUpdated.ToString(),
                 Body = new ProductKafkaBody()

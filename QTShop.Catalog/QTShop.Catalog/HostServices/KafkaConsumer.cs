@@ -37,7 +37,7 @@ namespace QTShop.Catalog
                     while (true)
                     {
                         var consumer = builder.Consume(cancelToken.Token);
-                        var message = JsonSerializer.Deserialize<ProductKafkaMessage>(consumer.Message.Value);
+                        var message = JsonSerializer.Deserialize<KafkaMessage<ProductKafkaBody>>(consumer.Message.Value);
                         switch (message.EventType)
                         {
                             case nameof(EventType.ProductQuantityUpdated):

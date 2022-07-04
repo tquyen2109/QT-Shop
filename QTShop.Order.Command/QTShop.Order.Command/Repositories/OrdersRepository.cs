@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Confluent.Kafka;
 using MongoDB.Driver;
+using QTShop.Common.Helper;
+using QTShop.Common.Models;
 using QTShop.Order.Command.Models;
 
 namespace QTShop.Order.Command.Repositories
@@ -8,12 +12,18 @@ namespace QTShop.Order.Command.Repositories
     public class OrdersRepository : IOrdersRepository
     {
         private readonly IMongoCollection<Models.Order> _orderEventCollection;
-
+        private readonly IProducer<string, KafkaMessage<OrderKafkaBody>> _producer;
         public OrdersRepository(IOrderEventCollectionDatabaseSettings settings)
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
             _orderEventCollection = database.GetCollection<Models.Order>(settings.OrderEventCollectionName);
+            var config = new ProducerConfig()
+            {
+                BootstrapServers = "localhost:9092"
+            };
+            _producer = new ProducerBuilder<string, KafkaMessage<OrderKafkaBody>>(config).SetValueSerializer(new CustomSerializer.CustomValueSerializer<KafkaMessage<OrderKafkaBody>>()).Build();
+
         }
         public class CreateOrderRequest
         {
@@ -34,7 +44,24 @@ namespace QTShop.Order.Command.Repositories
                 OrderStatus = OrderStatus.Pending.ToString()
             };
             await _orderEventCollection.InsertOneAsync(order);
-            //Publish event for order query
+            var orderMessage = new KafkaMessage<OrderKafkaBody>
+            {
+                EventType = EventType.OrderPlaced.ToString(),
+                EventId = Guid.NewGuid().ToString(),
+                Body = new OrderKafkaBody
+                {
+                    OrderId = order.Id,
+                    Total = order.Total.ToString(),
+                    BasketId = request.BasketId,
+                    OrderStatus = order.OrderStatus
+                }
+            };
+
+            await _producer.ProduceAsync("QTShop",new Message<string, KafkaMessage<OrderKafkaBody>>()
+            {
+                Key = orderMessage.Body.OrderId,
+                Value = orderMessage
+            });
         }
         
         public class Item
