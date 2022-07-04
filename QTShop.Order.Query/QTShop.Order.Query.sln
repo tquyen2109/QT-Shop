@@ -1,6 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QTShop.Order.Query", "QTShop.Order.Query\QTShop.Order.Query.csproj", "{C7FC6821-370C-4438-942D-9A5D55383848}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QTShop.Common", "..\QTShop.Common\QTShop.Common\QTShop.Common.csproj", "{DB966A27-D2AA-47D8-A3FB-A35A683D4193}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +15,9 @@ Global
 		{C7FC6821-370C-4438-942D-9A5D55383848}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C7FC6821-370C-4438-942D-9A5D55383848}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C7FC6821-370C-4438-942D-9A5D55383848}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB966A27-D2AA-47D8-A3FB-A35A683D4193}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB966A27-D2AA-47D8-A3FB-A35A683D4193}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB966A27-D2AA-47D8-A3FB-A35A683D4193}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB966A27-D2AA-47D8-A3FB-A35A683D4193}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

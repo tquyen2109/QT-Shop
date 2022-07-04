@@ -4,25 +4,24 @@ using System.Threading;
 using System.Threading.Tasks;
 using Confluent.Kafka;
 using Microsoft.Extensions.Hosting;
-using QTShop.Basket.Repositories;
 using QTShop.Common.Models;
 
-namespace QTShop.Basket
+namespace QTShop.Order.Query
 {
-    public class KafkaConsumer :IHostedService
+  public class KafkaConsumer : IHostedService
     {
-        private readonly IBasketRepository _basketRepository;
-        private readonly string topic = "QTShop";
+        private readonly IOrderRepository _orderRepository;
 
-        public KafkaConsumer(IBasketRepository basketRepository)
+        public KafkaConsumer(IOrderRepository orderRepository)
         {
-            _basketRepository = basketRepository;
+            _orderRepository = orderRepository;
         }
+        private readonly string topic = "QTShop";
         public Task StartAsync(CancellationToken cancellationToken)
         {
             var conf = new ConsumerConfig
             {
-                GroupId = "Basket",
+                GroupId = "Order",
                 BootstrapServers = "localhost:9092",
                 AutoOffsetReset = AutoOffsetReset.Earliest
             };
@@ -36,11 +35,17 @@ namespace QTShop.Basket
                     while (true)
                     {
                         var consumer = builder.Consume(cancelToken.Token);
-                        var message = JsonSerializer.Deserialize<KafkaMessage<ProductKafkaBody>>(consumer.Message.Value);
-                        switch (message.EventType)
+                        var eventType = JsonSerializer.Deserialize<KafkaMessage<object>>(consumer.Message.Value);
+                        switch (eventType.EventType)
                         {
-                            case nameof(EventType.ProductUpdated):
-                                _basketRepository.UpdatePrice(message.Body.ProductId, Int32.Parse(message.Body.Price), message.Body.Name);
+                            case nameof(EventType.OrderPlaced):
+                                 var createMessage = JsonSerializer.Deserialize<KafkaMessage<OrderKafkaBody>>(consumer.Message.Value);
+                                _orderRepository.CreateOrder(new OrderRepository.CreateOrderRequest
+                                {
+                                    OrderId = createMessage.Body.OrderId,
+                                    OrderStatus = createMessage.Body.OrderStatus,
+                                    Total = Int32.Parse(createMessage.Body.Total)
+                                });
                                 break;
                             default:
                                 Console.WriteLine($"No event type match");

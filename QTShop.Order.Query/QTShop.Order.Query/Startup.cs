@@ -28,6 +28,7 @@ namespace QTShop.Order.Query
         {
 
             services.AddControllers();
+            services.AddSingleton<IOrderRepository, OrderRepository>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "QTShop.Order.Query", Version = "v1" });

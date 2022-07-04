@@ -5,7 +5,6 @@ using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Hosting;
 using QTShop.Common.Models;
-using QTShop.Inventory.Model;
 using QTShop.Inventory.Repositories;
 
 namespace QTShop.Inventory
@@ -37,16 +36,18 @@ namespace QTShop.Inventory
                     while (true)
                     {
                         var consumer = builder.Consume(cancelToken.Token);
-                        var message = JsonSerializer.Deserialize<ProductKafkaMessage>(consumer.Message.Value);
-                        switch (message.EventType)
+                        var eventType = JsonSerializer.Deserialize<KafkaMessage<object>>(consumer.Message.Value);
+                        switch (eventType.EventType)
                         {
                             case nameof(EventType.ProductCreated):
-                                _productInventoryRepository.CreateProductInInventory(message.Body.ProductId,
-                                    message.Body.Name);
+                                 var createMessage = JsonSerializer.Deserialize<KafkaMessage<ProductKafkaBody>>(consumer.Message.Value);
+                                _productInventoryRepository.CreateProductInInventory(createMessage.Body.ProductId,
+                                    createMessage.Body.Name);
                                 break;
                             case nameof(EventType.ProductUpdated):
-                                _productInventoryRepository.UpdateProductInInventory(message.Body.ProductId,
-                                    message.Body.Name);
+                                 var updateMessage = JsonSerializer.Deserialize<KafkaMessage<ProductKafkaBody>>(consumer.Message.Value);
+                                _productInventoryRepository.UpdateProductInInventory(updateMessage.Body.ProductId,
+                                    updateMessage.Body.Name);
                                 break;
                             default:
                                 Console.WriteLine($"No event type match");

@@ -13,7 +13,7 @@ namespace QTShop.Inventory.Repositories
     public class ProductInventoryRepository : IProductInventoryRepository
     {
         private readonly string connectionString;
-        private readonly IProducer<string, ProductKafkaMessage> _producer;
+        private readonly IProducer<string, KafkaMessage<ProductKafkaBody>> _producer;
         public ProductInventoryRepository(IConfiguration configuration)
         {
             connectionString = configuration.GetConnectionString("DefaultConnection");
@@ -21,7 +21,7 @@ namespace QTShop.Inventory.Repositories
             {
                 BootstrapServers = "localhost:9092"
             };
-            _producer = new ProducerBuilder<string, ProductKafkaMessage>(config).SetValueSerializer(new CustomerSerializer.CustomValueSerializer<ProductKafkaMessage>()).Build();
+            _producer = new ProducerBuilder<string, KafkaMessage<ProductKafkaBody>>(config).SetValueSerializer(new CustomerSerializer.CustomValueSerializer<KafkaMessage<ProductKafkaBody>>()).Build();
 
         }
 
@@ -68,7 +68,7 @@ namespace QTShop.Inventory.Repositories
                 var sql =
                     $"UPDATE dbo.ProductInventory SET Quantity = {quantity} WHERE ProductId = '{productId}'";
                 await db.ExecuteAsync(sql);
-                var message = new ProductKafkaMessage()
+                var message = new KafkaMessage<ProductKafkaBody>()
                 {
                     EventType = EventType.ProductQuantityUpdated.ToString(),
                     Body = new ProductKafkaBody()
@@ -77,7 +77,7 @@ namespace QTShop.Inventory.Repositories
                         Quantity = quantity.ToString()
                     }
                 };
-                await _producer.ProduceAsync("QTShop", new Message<string, ProductKafkaMessage>()
+                await _producer.ProduceAsync("QTShop", new Message<string, KafkaMessage<ProductKafkaBody>>()
                 {
                     Key = productId,
                     Value =  message
