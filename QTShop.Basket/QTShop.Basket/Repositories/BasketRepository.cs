@@ -60,5 +60,18 @@ namespace QTShop.Basket.Repositories
                 throw;
             }
         }
+
+        public async Task DeleteBasket(string basketId)
+        {
+            try
+            {
+                await _basketCollection.DeleteOneAsync(b => b.Id == basketId);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
     }
 }

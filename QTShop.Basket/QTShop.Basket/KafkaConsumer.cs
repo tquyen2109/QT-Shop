@@ -36,11 +36,16 @@ namespace QTShop.Basket
                     while (true)
                     {
                         var consumer = builder.Consume(cancelToken.Token);
-                        var message = JsonSerializer.Deserialize<KafkaMessage<ProductKafkaBody>>(consumer.Message.Value);
-                        switch (message.EventType)
+                        var eventType = JsonSerializer.Deserialize<KafkaMessage<object>>(consumer.Message.Value);
+                        switch (eventType.EventType)
                         {
                             case nameof(EventType.ProductUpdated):
-                                _basketRepository.UpdatePrice(message.Body.ProductId, Int32.Parse(message.Body.Price), message.Body.Name);
+                                var productUpdatedMessage = JsonSerializer.Deserialize<KafkaMessage<ProductKafkaBody>>(consumer.Message.Value);
+                                _basketRepository.UpdatePrice(productUpdatedMessage.Body.ProductId, Int32.Parse(productUpdatedMessage.Body.Price), productUpdatedMessage.Body.Name);
+                                break;
+                            case nameof(EventType.OrderPlaced):
+                                var orderPlacedMessage = JsonSerializer.Deserialize<KafkaMessage<OrderKafkaBody>>(consumer.Message.Value);
+                                _basketRepository.DeleteBasket(orderPlacedMessage.Body.BasketId);
                                 break;
                             default:
                                 Console.WriteLine($"No event type match");
