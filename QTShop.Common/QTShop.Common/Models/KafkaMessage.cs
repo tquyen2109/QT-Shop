@@ -22,4 +22,11 @@
         public string BasketId { get; set; }
         public string OrderStatus { get; set; }
     }
+    
+    public class OrderCancelledKafkaBody
+    {
+        public string OrderId { get; set; }
+        public string OrderStatus { get; set; }
+        public string Reason { get; set; }
+    }
 }
