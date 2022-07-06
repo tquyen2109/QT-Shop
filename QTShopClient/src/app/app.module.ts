@@ -4,6 +4,13 @@ import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from "./app-material.module";
 import {CoreModule} from "./core/core.module";
+import {AppRoutingModule} from "./app-routing.module";
+import {FeaturesModule} from "./features/features.module";
+import {HttpClientModule} from "@angular/common/http";
+import { StoreModule } from '@ngrx/store';
+import {metaReducers, reducers} from "./store";
+import { EffectsModule } from '@ngrx/effects';
+import {DemoEffects} from "./store/effects/demo.effects";
 
 @NgModule({
   declarations: [
@@ -13,7 +20,14 @@ import {CoreModule} from "./core/core.module";
     BrowserModule,
     BrowserAnimationsModule,
     AppMaterialModule,
-    CoreModule
+    CoreModule,
+    AppRoutingModule,
+    FeaturesModule,
+    HttpClientModule,
+    StoreModule.forRoot(reducers, { metaReducers }),
+    EffectsModule.forRoot([
+      DemoEffects
+    ]),
   ],
   providers: [],
   bootstrap: [AppComponent]
