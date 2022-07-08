@@ -11,6 +11,6 @@ namespace QTShop.Catalog.Repositories
         public Task<IEnumerable<Product>> GetProducts();
         public Task CreateProduct(Product product);
         public Task UpdateProduct(Product product);
-        public Task UpdateProductQuantity(string id, string quantity);
+        public Task UpdateProductQuantity(string id, int quantity);
     }
 }

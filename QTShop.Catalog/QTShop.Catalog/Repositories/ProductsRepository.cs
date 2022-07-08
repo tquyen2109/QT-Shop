@@ -39,7 +39,7 @@ namespace QTShop.Catalog.Repositories
                 {
                     ProductId = product.Id,
                     Quantity = "0",
-                    Price = product.Price,
+                    Price = product.Price.ToString(),
                     Name = product.Name
                 }
             };
@@ -68,7 +68,7 @@ namespace QTShop.Catalog.Repositories
                 {
                     ProductId = product.Id,
                     Name = product.Name,
-                    Price = product.Price
+                    Price = product.Price.ToString()
                 }
             };
             await _outboxRepository.CreateOutboxMessage(new OutboxMessage
@@ -79,7 +79,7 @@ namespace QTShop.Catalog.Repositories
             ));
         }
 
-        public async Task UpdateProductQuantity(string id, string quantity)
+        public async Task UpdateProductQuantity(string id, int quantity)
         {
             try
             {

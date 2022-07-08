@@ -42,7 +42,7 @@ namespace QTShop.Catalog
                         {
                             case nameof(EventType.ProductQuantityUpdated):
                                 _productRepository.UpdateProductQuantity(message.Body.ProductId,
-                                    message.Body.Quantity);
+                                    Int32.Parse(message.Body.Quantity));
                                 break;
                             default:
                                 Console.WriteLine($"No event type match");
