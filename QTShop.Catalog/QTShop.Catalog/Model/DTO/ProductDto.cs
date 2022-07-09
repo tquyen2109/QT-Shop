@@ -1,4 +1,6 @@
-﻿namespace QTShop.Catalog.Model.DTO
+﻿using Microsoft.AspNetCore.Http;
+
+namespace QTShop.Catalog.Model.DTO
 {
     public class ProductDto
     {
@@ -7,7 +9,7 @@
         public string Description { get; set; }
         public string Type { get; set; }
         public string Brand { get; set; }
-        public string PictureUrl { get; set; }
+        public IFormFile PictureFileStream { get; set; }
         public int Price { get; set; }
     }
 }

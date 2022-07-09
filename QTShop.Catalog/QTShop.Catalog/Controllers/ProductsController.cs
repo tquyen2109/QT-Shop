@@ -11,10 +11,12 @@ namespace QTShop.Catalog.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductsRepository _productsRepository;
+        private readonly IPhotoRepository _photoRepository;
 
-        public ProductsController(IProductsRepository productsRepository)
+        public ProductsController(IProductsRepository productsRepository, IPhotoRepository photoRepository)
         {
             _productsRepository = productsRepository;
+            _photoRepository = photoRepository;
         }
         [Route("{id}")]
         [HttpGet]
@@ -30,15 +32,16 @@ namespace QTShop.Catalog.Controllers
         }
         
         [HttpPost]
-        public async Task CreateProduct([FromBody]ProductDto product)
+        public async Task CreateProduct([FromForm]ProductDto product)
         {
+            var pictureUrl = await _photoRepository.InsertPhotoAsync(product.PictureFileStream);
             await _productsRepository.CreateProduct(new Product
             {
                 Name = product.Name,
                 Description = product.Description,
                 Type = product.Type,
                 Brand = product.Brand,
-                PictureUrl = product.PictureUrl,
+                PictureUrl = pictureUrl,
                 Price = product.Price
             });
         }
@@ -53,7 +56,6 @@ namespace QTShop.Catalog.Controllers
                 Description = product.Description,
                 Type = product.Type,
                 Brand = product.Brand,
-                PictureUrl = product.PictureUrl,
                 Price = product.Price
             });
         }

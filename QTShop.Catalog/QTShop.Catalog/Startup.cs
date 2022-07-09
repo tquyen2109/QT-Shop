@@ -35,7 +35,7 @@ namespace QTShop.Catalog
             services.AddSingleton<IOutboxRepository, OutboxRepository>();
             services.AddSingleton<IJobFactory, SingletonJobFactory>();
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
-
+            services.AddTransient<IPhotoRepository,PhotoRepository>();
             // Add our job
             services.AddSingleton<OutboxJob>();
             services.AddSingleton(new JobSchedule(
