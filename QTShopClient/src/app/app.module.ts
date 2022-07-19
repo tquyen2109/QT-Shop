@@ -13,6 +13,7 @@ import { EffectsModule } from '@ngrx/effects';
 import {DemoEffects} from "./store/effects/demo.effects";
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import {environment} from "../environments/environment";
+import {CatalogEffects} from "./store/effects/catalog.effects";
 
 @NgModule({
   declarations: [
@@ -26,13 +27,15 @@ import {environment} from "../environments/environment";
     AppRoutingModule,
     FeaturesModule,
     HttpClientModule,
+    AppRoutingModule,
     StoreModule.forRoot(reducers, { metaReducers }),
     StoreDevtoolsModule.instrument({
       maxAge: 100, // Retains last 25 states
       logOnly: environment.production, // Restrict extension to log-only mode
     }),
     EffectsModule.forRoot([
-      DemoEffects
+      DemoEffects,
+      CatalogEffects
     ]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
   ],
